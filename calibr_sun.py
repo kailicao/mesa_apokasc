@@ -17,7 +17,9 @@ from .sim_ctr import SunGrid
 
 
 class SunCalibr:
-    '''Solar calibration.
+    '''
+    Solar calibration.
+
     '''
 
     Teff_target  = 5772.0
@@ -157,7 +159,9 @@ class SunCalibr:
 
 
 class SunModel:
-    '''Data structure for a solar model.
+    '''
+    Data structure for a solar model.
+
     '''
 
     def __init__(self, calibr: SunCalibr, aMLT: float, Y: float):

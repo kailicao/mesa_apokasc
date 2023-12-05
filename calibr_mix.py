@@ -10,7 +10,9 @@ from .sim_ctr import SunGrid
 
 
 class MixCalibr:
-    '''Calibrated solar mixture.
+    '''
+    Calibrated solar mixture.
+
     '''
 
     ISOTOPES = ['h1', 'h2', 'he3', 'he4', 'li7',
@@ -92,7 +94,9 @@ class MixCalibr:
         del self.stdmix
 
 class MixModel:
-    '''Data structure for the mixture of a solar model.
+    '''
+    Data structure for the mixture of a solar model.
+
     '''
 
     def __init__(self, calibr: MixCalibr, aMLT: float, Y: float):

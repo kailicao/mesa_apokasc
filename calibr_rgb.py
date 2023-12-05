@@ -16,8 +16,8 @@ class RgbCalibr:
 
     '''
 
-    CATALOG_PATH = 'apokasc3/APOKASC3data_catalogDR17_MESA.csv'
-    OBS_QTY_LIST = ['KIC', 'TEFF', 'S_TEFF', 'LOGG_C_MO', 'S_LOGG_C_MO', 'M_C_MO', 'S_M_C_MO',
+    CATALOG_PATH = 'apokasc3/APOKASC3data_catalogDR17_AGB.csv'
+    OBS_QTY_LIST = ['KIC', 'ES_MV', 'TEFF', 'S_TEFF', 'LOGG_C_MO', 'S_LOGG_C_MO', 'M_C_MO', 'S_M_C_MO',
                     '[FE/H]', 'S_[FE/H]', '[A/FE]', 'S_[A/FE]', '[M/H]_SAL', 'S_[M/H]_SAL',
                     '[C/FE]', 'S_[C/FE]', '[N/FE]', 'S_[N/FE]', '[C/N]', 'S_[C/N]']
 
@@ -91,13 +91,16 @@ class RgbCalibr:
         self.apokasc3 = pd.read_csv(files(__package__).joinpath(RgbCalibr.CATALOG_PATH),
                                     index_col=0)[RgbCalibr.OBS_QTY_LIST]
         # print(list(self.apokasc3.columns))
+        self.apokasc3 = self.apokasc3[self.apokasc3['ES_MV'] == 1]  # exclude AGB stars
+        self.apokasc3.drop(columns=['ES_MV'])
 
-        mass_cut      = (self.apokasc3['M_C_MO']    >  0.85) & (self.apokasc3['M_C_MO']    < 1.85)
-        if not Salaris:
-            metal_cut = (self.apokasc3['[FE/H]']    > -0.45) & (self.apokasc3['[FE/H]']    < 0.45)
-        else:
-            metal_cut = (self.apokasc3['[M/H]_SAL'] > -0.45) & (self.apokasc3['[M/H]_SAL'] < 0.45)
-        self.apokasc3 = self.apokasc3[mass_cut & metal_cut]; del mass_cut, metal_cut
+        # APOKASC3data_catalogDR17_AGB.csv already includes the following cuts
+        # mass_cut      = (self.apokasc3['M_C_MO']    >  0.85) & (self.apokasc3['M_C_MO']    < 1.85)
+        # if not Salaris:
+        #     metal_cut = (self.apokasc3['[FE/H]']    > -0.45) & (self.apokasc3['[FE/H]']    < 0.45)
+        # else:
+        #     metal_cut = (self.apokasc3['[M/H]_SAL'] > -0.45) & (self.apokasc3['[M/H]_SAL'] < 0.45)
+        # self.apokasc3 = self.apokasc3[mass_cut & metal_cut]; del mass_cut, metal_cut
 
         track_cut = self.apokasc3['TEFF'] + self.apokasc3['LOGG_C_MO'] * 1000 > 7500
         self.apokasc3 = self.apokasc3[track_cut]; del track_cut
@@ -125,7 +128,7 @@ class RgbCalibr:
         self.apokasc3.to_csv(self.outdir / fname)
 
     def clear(self):
-        del self.Teff_data, self.logg_data, self.mass_data, self.FeH_data
+        del self.existence, self.Teff_data, self.logg_data, self.mass_data, self.FeH_data
         for k in range(len(self.aMLT_list)):
             self.Teff_interps[k].clear()
             self.logg_interps[k].clear()
@@ -140,6 +143,7 @@ class RgbModel:
     '''
 
     SIM_QTY_LIST = ['Teff', 'log_g', 'star_mass', 'surface_[Fe/H]']
+    MASS_LOSS_COEF = 1.0  # M_node = (1 - coef) * M_init + coef * M_MESA
 
     def __init__(self, calibr: RgbCalibr, vary: str = 'both', **kwargs):
         model_name = f'aMLT={kwargs["aMLT"]:.4f}_{kwargs["mass"]:.2f}M_' \
@@ -154,6 +158,11 @@ class RgbModel:
 
         if vary in ['both', 'mass']:
             self.mass = data['star_mass'][Steps.pre_FDU:Steps.pre_RGBB+1].copy()
+
+            coef = RgbModel.MASS_LOSS_COEF  # short cut
+            if coef != 1.0:
+                self.mass *= coef
+                self.mass += (1.0 - coef) * kwargs["mass"]
         else:
             self.mass = kwargs["mass"]
 

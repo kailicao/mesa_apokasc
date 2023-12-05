@@ -6,7 +6,9 @@ from .common import Timer
 
 
 class SimGrid:
-    '''Base class of SunGrid and RgbGrid.
+    '''
+    Base class of SunGrid and RgbGrid.
+
     '''
 
     def __init__(self, output_dir: pathlib.Path, sim_mode: bool = False):
@@ -61,7 +63,9 @@ class SimGrid:
 
 
 class SimCtr:
-    '''Controller of a single simulation.
+    '''
+    Controller of a single simulation.
+
     '''
 
     def __init__(self, grid: SimGrid, **kwargs):
@@ -155,7 +159,9 @@ class SimCtr:
 
 
 class SunGrid(SimGrid):
-    '''A grid of solar simulations.
+    '''
+    A grid of solar simulations.
+
     '''
 
     rgb_mode = False
@@ -192,7 +198,9 @@ class SunGrid(SimGrid):
 
 
 class RgbGrid(SimGrid):
-    '''A grid of RGB simulations.
+    '''
+    A grid of RGB simulations.
+
     '''
 
     rgb_mode = True
@@ -241,4 +249,3 @@ class RgbGrid(SimGrid):
 
         self.remove_mesa()
         print(' > All models completed!', '@', self.timer(), flush=True)
-
