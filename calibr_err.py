@@ -1,9 +1,10 @@
+import json
+
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d, UnivariateSpline
 
-# from mesa_apokasc.sim_ctr import RgbGrid
 from mesa_apokasc.calibr_rgb import RgbCalibr
 
 
@@ -106,7 +107,7 @@ class AmltModel:
             catalog['DAMLT_DM'] = self.daMLT_dmass(model_input, *popt)
             catalog['DAMLT_D[M/H]'] = self.daMLT_dmetal(model_input, *popt)
             del model_input
-            # print(np.sum(np.square(catalog['AMLT_FIT'] - catalog['AMLT_OPT'])))
+            calibr.popt_dict[self.model_name] = list(popt)
 
         # loop over stars, compute TEFF_FIT and numerical derivatives
         delta = AmltModel.DELTA; get_Teff_pred = AmltModel.get_Teff_pred
@@ -157,14 +158,16 @@ class RgbCalErr(RgbCalibr):
         self.build_interps()
 
         # load RgbCalibr.get_amlt_opt results
-        fname = 'Salaris-' + ('on' if Salaris else 'off') + '_vary-' + vary + '.csv'
-        self.apokasc3 = pd.read_csv(self.outdir / fname, index_col=0)
+        self.fname = 'Salaris-' + ('on' if Salaris else 'off') + '_vary-' + vary
+        self.apokasc3 = pd.read_csv(self.outdir / f'{self.fname}.csv', index_col=0)
 
         self.model_controller(vary, Salaris)
         self.clear()
         print(' > Finished analyzing all models!', '@', self.timer(), flush=True)
 
     def model_controller(self, vary: str = 'both', Salaris: bool = False):
+        self.popt_dict = {}
+
         # for order_mass in range(5):
         #     for order_metal in range(4):
         #         for cross_term in [False, True]:
@@ -178,3 +181,6 @@ class RgbCalErr(RgbCalibr):
                           '@', self.timer(), flush=True)
                     model.analyze_error(self, vary, Salaris)
                     del model
+
+        with open(self.outdir / f'{self.fname}.json', 'w') as f:
+            json.dump(self.popt_dict, f, indent=4)

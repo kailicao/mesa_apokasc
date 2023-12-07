@@ -33,6 +33,7 @@ class Steps:
 
 
 class ReduceGrid:
+
     with open(files(__package__).joinpath('chem/isotopes.json'), 'r') as f:
         iso_weights = json.load(f)
 
@@ -64,6 +65,7 @@ class ReduceGrid:
 
 
 class ReduceModel:
+
     QTY_LIST = ['model_number', 'star_age', 'star_mass', 'conv_mx1_bot', 'he_core_mass',
                 'Teff', 'log_L', 'log_R', 'log_g', 'center_h1', 'log_Lnuc_div_L',
                 'surface_X', 'surface_Y', 'surface_[Fe/H]',
@@ -180,8 +182,14 @@ class ReduceModel:
                              endpoint=(step_f == 'end'))
 
         for qty in ReduceModel.QTY_LIST:
-            f = interp1d(coord, self.raw_data[qty]\
-                         [getattr(self, step_i):getattr(self, step_f)+1], kind='slinear')
+            try:
+                f = interp1d(coord, self.raw_data[qty]\
+                             [getattr(self, step_i):getattr(self, step_f)+1], kind='slinear')
+            except:
+                for idx in np.where(np.diff(coord) == 0)[0]:
+                    coord[idx+1] += 1e-12
+                f = interp1d(coord, self.raw_data[qty]\
+                             [getattr(self, step_i):getattr(self, step_f)+1], kind='slinear')
             self.data[qty][idx_i:idx_f+(step_f == 'end')] = f(sample)
             del f
 
