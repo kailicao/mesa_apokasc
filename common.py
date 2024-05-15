@@ -4,10 +4,10 @@ import pathlib
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-rcParams.update({'font.family' : 'serif', 'mathtext.fontset' : 'dejavuserif',
-                 'font.size' : 12, 'text.latex.preamble' : r"\usepackage{amsmath}",
-                 'xtick.major.pad' : 2, 'ytick.major.pad' : 2, 'xtick.major.size' : 6, 'ytick.major.size' : 6,
-                 'xtick.minor.size' : 3, 'ytick.minor.size' : 3, 'axes.linewidth' : 2, 'axes.labelpad' : 1})
+rcParams.update({'font.family': 'serif', 'mathtext.fontset': 'dejavuserif',
+                 'font.size': 12, 'text.latex.preamble': r"\usepackage{amsmath}",
+                 'xtick.major.pad': 2, 'ytick.major.pad': 2, 'xtick.major.size': 6, 'ytick.major.size': 6,
+                 'xtick.minor.size': 3, 'ytick.minor.size': 3, 'axes.linewidth': 2, 'axes.labelpad': 1})
 from pypdf import PdfMerger
 
 

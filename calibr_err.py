@@ -19,7 +19,7 @@ class AmltModel:
     OUT_QTY_LIST = ['AMLT_FIT', 'DAMLT_DM', 'DAMLT_D[M/H]', 'TEFF_FIT',
                     'DTEFF_DLOGG', 'DTEFF_DM', 'DTEFF_D[M/H]', 'DTEFF_DAMLT',
                     'S_TEFF_LOGG', 'S_TEFF_M', 'S_TEFF_[M/H]', 'S_TEFF_TOT']
-    DELTA = 1e-4  # for computing numerical derivatives
+    DELTA = 1e-6  # for computing numerical derivatives
 
     def __init__(self, order_mass: int = 2, order_metal: int = 1,
                  cross_term: bool = False, solar_value: float = None):

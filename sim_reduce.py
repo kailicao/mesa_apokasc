@@ -69,7 +69,7 @@ class ReduceModel:
     QTY_LIST = ['model_number', 'star_age', 'star_mass', 'conv_mx1_bot', 'he_core_mass',
                 'Teff', 'log_L', 'log_R', 'log_g', 'center_h1', 'log_Lnuc_div_L',
                 'surface_X', 'surface_Y', 'surface_[Fe/H]',
-                'surface_[Li/H]', 'surface_[C/Fe]', 'surface_[N/Fe]',
+                'surface_A(Li)', 'surface_[C/Fe]', 'surface_[N/Fe]',
                 'surface_[C/N]', 'surface_12C/13C']
 
     def __init__(self, grid: ReduceGrid, verbose: bool = False,
@@ -104,8 +104,9 @@ class ReduceModel:
             print(' > ReduceModel._clear_data', '@', self.grid.timer(), '\n')
         self._clear_data()
 
-    def _get_number_ratios(self, h: mr.MesaData, isos: [str]) -> np.array:
+    def _get_number_ratios(self, h: mr.MesaData, isos: [str], nostd: bool = False) -> np.array:
         my_num = sum([h.data(f'surface_{iso}') / ReduceGrid.iso_weights[iso] for iso in isos])
+        if nostd: return my_num
         stdnum = sum([self.grid.stdmix [iso]   / ReduceGrid.iso_weights[iso] for iso in isos])
         return my_num / stdnum
 
@@ -121,17 +122,18 @@ class ReduceModel:
         # surface composition
         self.raw_data['surface_X'] = sum([h.surface_h1,  h.surface_h2 ])
         self.raw_data['surface_Y'] = sum([h.surface_he3, h.surface_he4])
-        surface_h  = self._get_number_ratios(h, ['h1', 'h2'  ])
-        surface_li = self._get_number_ratios(h, ['li7'       ])
-        surface_c  = self._get_number_ratios(h, ['c12', 'c13'])
-        surface_n  = self._get_number_ratios(h, ['n14', 'n15'])
-        surface_fe = h.surface_mg24 / self.grid.stdmix['mg24']
+        surface_h   = self._get_number_ratios(h, ['h1', 'h2'  ])
+        surface_hns = self._get_number_ratios(h, ['h1', 'h2'  ], nostd=True)
+        surface_li  = self._get_number_ratios(h, ['li7'       ], nostd=True)
+        surface_c   = self._get_number_ratios(h, ['c12', 'c13'])
+        surface_n   = self._get_number_ratios(h, ['n14', 'n15'])
+        surface_fe  = h.surface_mg24 / self.grid.stdmix['mg24']
 
-        self.raw_data['surface_[Fe/H]' ] = np.log10(surface_fe / surface_h )
-        self.raw_data['surface_[Li/H]' ] = np.log10(surface_li / surface_h )
-        self.raw_data['surface_[C/Fe]' ] = np.log10(surface_c  / surface_fe)
-        self.raw_data['surface_[N/Fe]' ] = np.log10(surface_n  / surface_fe)
-        self.raw_data['surface_[C/N]'  ] = np.log10(surface_c  / surface_n )
+        self.raw_data['surface_[Fe/H]' ] = np.log10(surface_fe / surface_h  )
+        self.raw_data['surface_A(Li)'  ] = np.log10(surface_li / surface_hns)
+        self.raw_data['surface_[C/Fe]' ] = np.log10(surface_c  / surface_fe )
+        self.raw_data['surface_[N/Fe]' ] = np.log10(surface_n  / surface_fe )
+        self.raw_data['surface_[C/N]'  ] = np.log10(surface_c  / surface_n  )
         self.raw_data['surface_12C/13C'] = (h.surface_c12 / ReduceGrid.iso_weights['c12']) \
                                          / (h.surface_c13 / ReduceGrid.iso_weights['c13'])
 

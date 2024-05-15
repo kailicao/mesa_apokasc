@@ -5,11 +5,11 @@ from scipy.interpolate import RectBivariateSpline
 from scipy.optimize import minimize
 
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
-rcParams.update({'font.family': 'serif', 'mathtext.fontset': 'dejavuserif',
-                 'font.size': 12, 'text.latex.preamble': r"\usepackage{amsmath}",
-                 'xtick.major.pad': 2, 'ytick.major.pad': 2, 'xtick.major.size': 6, 'ytick.major.size': 6,
-                 'xtick.minor.size': 3, 'ytick.minor.size': 3, 'axes.linewidth': 2, 'axes.labelpad': 1})
+# from matplotlib import rcParams
+# rcParams.update({'font.family': 'serif', 'mathtext.fontset': 'dejavuserif',
+#                  'font.size': 12, 'text.latex.preamble': r"\usepackage{amsmath}",
+#                  'xtick.major.pad': 2, 'ytick.major.pad': 2, 'xtick.major.size': 6, 'ytick.major.size': 6,
+#                  'xtick.minor.size': 3, 'ytick.minor.size': 3, 'axes.linewidth': 2, 'axes.labelpad': 1})
 
 import mesa_reader as mr
 from .common import Timer, Tools
@@ -145,10 +145,7 @@ class SunCalibr:
             figname = f'round_{self.round_}_{qty}_map'
             plots.append(figname)
             ax.set_title(figname)
-
-            fig.tight_layout()
-            fig.savefig(f'{figname}.pdf', dpi=128)
-            plt.close(fig)
+            Tools.save_figure(fig, figname)
 
         Tools.merge_plots(self.output_dir, f'round={self.round_}_Z={self.Z:.4f}', plots)
 

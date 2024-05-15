@@ -6,7 +6,7 @@ import pandas as pd
 from scipy.interpolate import SmoothBivariateSpline, interp1d, UnivariateSpline
 from scipy.optimize import fsolve
 
-from .common import Timer  #, Tools
+from .common import Timer
 from .sim_ctr import RgbGrid
 from .sim_reduce import Steps
 
@@ -103,7 +103,7 @@ class RgbCalibr:
         #     metal_cut = (self.apokasc3['[M/H]_SAL'] > -0.45) & (self.apokasc3['[M/H]_SAL'] < 0.45)
         # self.apokasc3 = self.apokasc3[mass_cut & metal_cut]; del mass_cut, metal_cut
 
-        track_cut = self.apokasc3['TEFF'] + self.apokasc3['LOGG_C_MO'] * 1000 > 7500
+        track_cut = self.apokasc3['TEFF'] + self.apokasc3['LOGG_C_MO'] * 1000.0 > 7500.0
         self.apokasc3 = self.apokasc3[track_cut]; del track_cut
         # print(len(self.apokasc3))
 
@@ -144,7 +144,7 @@ class RgbModel:
     '''
 
     SIM_QTY_LIST = ['Teff', 'log_g', 'star_mass', 'surface_[Fe/H]']
-    MASS_LOSS_COEF = 1.0  # M_node = (1 - coef) * M_init + coef * M_MESA
+    MASS_LOSS_COEF = 1.0  # M_node = (1.0 - coef) * M_init + coef * M_MESA
 
     def __init__(self, calibr: RgbCalibr, vary: str = 'both', **kwargs):
         model_name = f'aMLT={kwargs["aMLT"]:.4f}_{kwargs["mass"]:.2f}M_' \

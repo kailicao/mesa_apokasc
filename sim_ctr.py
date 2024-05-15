@@ -47,7 +47,6 @@ class SimGrid:
             os.chdir(self.output_dir.name)
             os.system('./clean')
             os.chdir('..')
-            # os.system('$MESA_DIR/empty_caches')
 
         for item in ['.mesa_temp_cache', 'photos', 'inlist', 'testhub.yml']:
             item_ = self.output_dir / item
@@ -67,6 +66,12 @@ class SimCtr:
     Controller of a single simulation.
 
     '''
+
+    # isotopic *mass* fractions for hydrogen and helium
+    H1_FRAC = 1.0 / (1.0 + 0.0000194*2.0141018 / (0.9999806*1.007825))
+    H2_FRAC = 1.0 - H1_FRAC  # (0.9999612305528522, 3.8769447147841e-05)
+    HE4_FRAC = 1.0 / (1.0 + 0.00016597*3.0160293 / (0.99983403*4.0026033))
+    HE3_FRAC = 1.0 - H2_FRAC  # 0.9998749336809143, 0.0001250663190856427
 
     def __init__(self, grid: SimGrid, **kwargs):
         self.grid = grid
@@ -102,15 +107,15 @@ class SimCtr:
             for i, line in enumerate(my_inlist):
                 if inlist == 'inlist_start':
                     if 'initial_h1 = ' in line:
-                        my_inlist[i] = f'      initial_h1 = {SimCtr.frac_wrapper(X*0.9999806)}\n'
+                        my_inlist[i] = f'      initial_h1 = {SimCtr.frac_wrapper(X*SimCtr.H1_FRAC)}\n'
                     elif 'initial_h2 = ' in line:
-                        my_inlist[i] = f'      initial_h2 = {SimCtr.frac_wrapper(X*0.0000194)}\n'
+                        my_inlist[i] = f'      initial_h2 = {SimCtr.frac_wrapper(X*SimCtr.H2_FRAC)}\n'
                     elif 'initial_he3 = ' in line:
-                        my_inlist[i] = f'      initial_he3 = {SimCtr.frac_wrapper(self.Y*0.00016597)}\n'
+                        my_inlist[i] = f'      initial_he3 = {SimCtr.frac_wrapper(self.Y*SimCtr.HE3_FRAC)}\n'
                     elif 'initial_he4 = ' in line:
-                        my_inlist[i] = f'      initial_he4 = {SimCtr.frac_wrapper(self.Y*0.99983403)}\n'
+                        my_inlist[i] = f'      initial_he4 = {SimCtr.frac_wrapper(self.Y*SimCtr.HE4_FRAC)}\n'
                     elif 'xa_central_lower_limit(1) = ' in line:
-                        my_inlist[i] = f'      xa_central_lower_limit(1) = {SimCtr.frac_wrapper(X*0.000000194)}\n'
+                        my_inlist[i] = f'      xa_central_lower_limit(1) = {SimCtr.frac_wrapper(X*SimCtr.H2_FRAC*0.01)}\n'
 
                 if 'Zbase = ' in line:
                     my_inlist[i] = f'      Zbase = {self.Z:.10f}d0\n'
