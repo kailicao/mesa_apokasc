@@ -2,6 +2,7 @@ import os
 import pathlib
 import shutil
 
+from importlib.resources import files
 from .common import Timer
 
 
@@ -25,6 +26,9 @@ class SimGrid:
                 shutil.copytree(item, self.output_dir / item.name)
             else:
                 shutil.copy(item, self.output_dir / item.name)
+        if not self.default_rates:
+            shutil.copytree(files(__package__).joinpath('rate_tables'),
+                            self.output_dir / 'rate_tables')
 
         if self.rgb_mode:
             (self.output_dir / 'inlist_to_solar_age').unlink()
@@ -176,9 +180,10 @@ class SunGrid(SimGrid):
     AMLT_LIST = [1.5, 1.8, 2.1]
 
     def __init__(self, sim_mode: bool = False, round_: int = 0, Z: float = 0.0187,
-                 Y_list: [float] = None, aMLT_list: [float] = None):
+                 Y_list: [float] = None, aMLT_list: [float] = None, default_rates: bool = False):
         output_dir = pathlib.Path('sun_grid')
         output_dir.mkdir(exist_ok=True)
+        self.default_rates = default_rates
         super(SunGrid, self).__init__(output_dir, sim_mode)
 
         self.round_ = round_
@@ -222,6 +227,7 @@ class RgbGrid(SimGrid):
                  mass_list: [float] = None, FeH_list: [float] = None, **kwargs):
         output_dir = pathlib.Path('rgb_grid')
         output_dir.mkdir(exist_ok=True)
+        self.default_rates = kwargs.get('default_rates', False)
         super(RgbGrid, self).__init__(output_dir, sim_mode)
 
         self.aMLT_list = aMLT_list if aMLT_list is not None else RgbGrid.AMLT_LIST

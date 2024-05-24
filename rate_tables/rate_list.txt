@@ -1,0 +1,36 @@
+
+! this is an example of a rates list file for use with mesa/rates
+
+! the mesa/data/net_data/rates directory has sample rate files
+
+! pairs of rate name and rate file
+
+! r1             'r1.txt'
+! r2             'r2.txt'
+! r3             'r3.txt'
+! r4             'r4.txt'
+! r5             'r5.txt'
+! r6             'r6.txt'
+! r7             'r7.txt'
+! r8             'r8.txt'
+! r9             'r9.txt'
+
+! al26 isomers
+! r_al26-1_to_al26-2 'r_al26-1_to_al26-2.dat'
+! r_al26-2_to_al26-1 'r_al26-2_to_al26-1.dat'
+
+! nacreII rates
+r_h2_h2_to_he4         'r_h2_h2_to_he4_nacreII.dat'
+r_h2_pg_he3            'r_h2_pg_he3_nacreII.dat'
+r_h2_he3_to_h1_he4     'r_h2_he3_to_h1_he4_nacreII.dat'
+r_he3_he3_to_h1_h1_he4 'r_he3_he3_to_h1_h1_he4_nacreII.dat'
+r_he3_ag_be7           'r_he3_ag_be7_nacreII.dat'
+r_li7_pa_he4           'r_li7_pa_he4_nacreII.dat'
+r_be7_pg_b8            'r_be7_pg_b8_nacreII.dat'
+r_c12_pg_n13           'r_c12_pg_n13_nacreII.dat'
+r_c12_ag_o16           'r_c12_ag_o16_nacreII.dat'
+r_c13_pg_n14           'r_c13_pg_n14_nacreII.dat'
+r_n13_pg_o14           'r_n13_pg_o14_nacreII.dat'
+r_n14_pg_o15           'r_n14_pg_o15_nacreII.dat'
+r_n15_pa_c12           'r_n15_pa_c12_nacreII.dat'
+r_n15_pg_o16           'r_n15_pg_o16_nacreII.dat'
