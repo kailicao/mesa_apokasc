@@ -48,7 +48,8 @@ class SimGrid:
             os.system('./clean')
             os.chdir('..')
 
-        for item in ['.mesa_temp_cache', 'photos', 'inlist', 'testhub.yml']:
+        for item in ['.mesa_temp_cache', 'eosDT_cache', 'kap_cache', 'rates_cache',
+                     'photos', 'inlist', 'testhub.yml']:
             item_ = self.output_dir / item
             if item_.exists():
                 if item_.is_dir(): shutil.rmtree(item_)
@@ -71,7 +72,7 @@ class SimCtr:
     H1_FRAC = 1.0 / (1.0 + 0.0000194*2.0141018 / (0.9999806*1.007825))
     H2_FRAC = 1.0 - H1_FRAC  # (0.9999612305528522, 3.8769447147841e-05)
     HE4_FRAC = 1.0 / (1.0 + 0.00016597*3.0160293 / (0.99983403*4.0026033))
-    HE3_FRAC = 1.0 - H2_FRAC  # 0.9998749336809143, 0.0001250663190856427
+    HE3_FRAC = 1.0 - HE4_FRAC  # 0.9998749336809143, 0.0001250663190856427
 
     def __init__(self, grid: SimGrid, **kwargs):
         self.grid = grid
