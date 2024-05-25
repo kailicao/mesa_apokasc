@@ -53,7 +53,7 @@ class SimGrid:
             os.chdir('..')
 
         for item in ['.mesa_temp_cache', 'eosDT_cache', 'kap_cache', 'rates_cache',
-                     'photos', 'inlist', 'testhub.yml']:
+                     'rate_tables', 'photos', 'inlist', 'testhub.yml']:
             item_ = self.output_dir / item
             if item_.exists():
                 if item_.is_dir(): shutil.rmtree(item_)
@@ -220,8 +220,8 @@ class RgbGrid(SimGrid):
     AMLT_MINI = [1.6, 2.0]
     MASS_LIST = [0.85, 1.00, 1.15, 1.30, 1.45, 1.65, 1.85]
     MASS_MINI = [1.00, 1.30, 1.65]
-    FEH_LIST = [-0.45, -0.30, -0.15,  0.00,  0.15,  0.30,  0.45]
-    FEH_MINI = [-0.45,  0.00,  0.45]
+    FEH_LIST = [-0.48, -0.32, -0.16,  0.00,  0.15,  0.30,  0.45]
+    FEH_MINI = [-0.48,  0.00,  0.45]
 
     def __init__(self, sim_mode: bool = False, aMLT_list: [float] = None,
                  mass_list: [float] = None, FeH_list: [float] = None, **kwargs):

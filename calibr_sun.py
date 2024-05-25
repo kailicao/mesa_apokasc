@@ -3,13 +3,7 @@ import pathlib
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
 from scipy.optimize import minimize
-
 import matplotlib.pyplot as plt
-# from matplotlib import rcParams
-# rcParams.update({'font.family': 'serif', 'mathtext.fontset': 'dejavuserif',
-#                  'font.size': 12, 'text.latex.preamble': r"\usepackage{amsmath}",
-#                  'xtick.major.pad': 2, 'ytick.major.pad': 2, 'xtick.major.size': 6, 'ytick.major.size': 6,
-#                  'xtick.minor.size': 3, 'ytick.minor.size': 3, 'axes.linewidth': 2, 'axes.labelpad': 1})
 
 import mesa_reader as mr
 from .common import Timer, Tools
@@ -109,6 +103,7 @@ class SunCalibr:
         surface_X_opt = self.interps['surface_X'](self.Y_opt, self.aMLT_opt)[0, 0]
         surface_Y_opt = self.interps['surface_Y'](self.Y_opt, self.aMLT_opt)[0, 0]
         self.Z_over_X_opt = (1.0 - surface_X_opt - surface_Y_opt) / surface_X_opt
+        print(f' > {self.Z_over_X_opt = }')
         print(' > Next Z value to try:', self.Z * self.Z_over_X_sun / self.Z_over_X_opt)
 
         # with open(str(self.output_dir / f'round={self.round_}_Z={self.Z:.4f}.json'), 'w') as f:
