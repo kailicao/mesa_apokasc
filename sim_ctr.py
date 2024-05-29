@@ -218,7 +218,7 @@ class RgbGrid(SimGrid):
 
     AMLT_LIST = [1.5, 1.8, 2.1]
     AMLT_MINI = [1.6, 2.0]
-    MASS_LIST = [0.85, 1.00, 1.15, 1.30, 1.45, 1.65, 1.85]
+    MASS_LIST = [0.90, 1.00, 1.15, 1.30, 1.45, 1.65, 1.85]
     MASS_MINI = [1.00, 1.30, 1.65]
     FEH_LIST = [-0.48, -0.32, -0.16,  0.00,  0.15,  0.30,  0.45]
     FEH_MINI = [-0.48,  0.00,  0.45]
@@ -227,7 +227,7 @@ class RgbGrid(SimGrid):
                  mass_list: [float] = None, FeH_list: [float] = None, **kwargs):
         output_dir = pathlib.Path('rgb_grid')
         output_dir.mkdir(exist_ok=True)
-        self.default_rates = kwargs.get('default_rates', False)
+        self.default_rates = kwargs.pop('default_rates', False)
         super(RgbGrid, self).__init__(output_dir, sim_mode)
 
         self.aMLT_list = aMLT_list if aMLT_list is not None else RgbGrid.AMLT_LIST

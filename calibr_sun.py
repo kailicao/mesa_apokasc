@@ -1,4 +1,5 @@
 import pathlib
+import json
 
 import numpy as np
 from scipy.interpolate import RectBivariateSpline
@@ -7,7 +8,7 @@ import matplotlib.pyplot as plt
 
 import mesa_reader as mr
 from .common import Timer, Tools
-from .sim_ctr import SunGrid
+from .sim_ctr import SunGrid, RgbGrid
 
 
 class SunCalibr:
@@ -173,3 +174,61 @@ class SunModel:
         self.log_L = h.log_L[-1]
         self.surface_X = h.surface_h1 [-1] + h.surface_h2 [-1]
         self.surface_Y = h.surface_he3[-1] + h.surface_he4[-1]
+
+
+class MixCalibr:
+    '''
+    Extract birth mixture of the "solar" model.
+
+    '''
+
+    ISOTOPES = ['h1', 'h2', 'he3', 'he4', 'li7',
+                'c12', 'c13', 'n14', 'n15', 'o16', 'o17', 'o18',
+                'f19', 'ne20', 'mg22', 'mg24']
+
+    def __init__(self, aMLT_opt: float = SunGrid.AMLT_LIST[1], **kwargs):
+        self.output_dir = pathlib.Path('rgb_grid')
+        assert self.output_dir.exists(), 'rgb_grid does not exist'
+
+        self.aMLT_opt = aMLT_opt
+        self.kwargs = kwargs  # Ybirth, Zbirth, Z_over_X_sun, YBBN
+
+        self.timer = Timer()
+        self()
+
+    def __call__(self):
+        self.extract_stdmix()
+        self.export_stdmix()
+        print(' > Standard solar mixture established!', '@', self.timer())
+
+    def extract_stdmix(self):
+        Y, Z = RgbGrid.Y_Z_calc(0.0, **self.kwargs)
+        model_name = f'aMLT={self.aMLT_opt:.4f}_1.00M_Z={Z:.4f}_FeH=+0.00'
+        histfile = self.output_dir / model_name / 'history_start.data'
+        assert histfile.exists(), 'input file does not exist'
+
+        self.kwargs.clear()
+        del self.aMLT_opt, self.kwargs
+
+        h = mr.MesaData(str(histfile))
+        self.stdmix = {}
+        for iso in MixCalibr.ISOTOPES:
+            self.stdmix[iso] = h.data(f'surface_{iso}')[0]
+        del h
+
+    def export_stdmix(self):
+        total = sum(self.stdmix.values())
+        print(' > Without normalization,', f'{total = }')
+
+        self.stdmix['X_frac'] = self.stdmix['h1']  + self.stdmix['h2']
+        self.stdmix['Y_frac'] = self.stdmix['he3'] + self.stdmix['he4']
+        # self.stdmix['Z_frac'] = 1.0 - self.stdmix['X_frac'] - self.stdmix['Y_frac']
+        self.stdmix['Z_frac'] = sum(self.stdmix[iso] for iso in MixCalibr.ISOTOPES[4:])
+        self.stdmix['Z_over_X'] = self.stdmix['Z_frac'] / self.stdmix['X_frac']
+        print(' > Z_over_X_sun =', self.stdmix['Z_over_X'])
+
+        with open('stdmix.json', 'w') as f:
+            json.dump(self.stdmix, f, indent=4)
+
+        self.stdmix.clear()
+        del self.stdmix

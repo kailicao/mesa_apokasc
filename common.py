@@ -64,7 +64,7 @@ class Tools:
             pathlib.Path(f'{plot}.pdf').unlink()
 
     @staticmethod
-    def generate_rgb_threads(grid_name: str, num_metal_line: int,
+    def generate_rgb_threads(grid_name: str, num_metal_line: int = 40,
                              num_metal_nodes: int = 7) -> None:
         '''
         This method is supposed to be used in the project directory
