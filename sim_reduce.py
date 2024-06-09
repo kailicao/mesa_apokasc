@@ -29,7 +29,7 @@ class Steps:
     post_FDU = 170; post_FDU_c = 'tab:red'
     pre_RGBB  = 200; pre_RGBB_c  = 'tab:purple'
     post_RGBB = 210; post_RGBB_c = 'tab:brown'
-    end = 240
+    end = 300
 
 
 class ReduceGrid:
