@@ -36,9 +36,9 @@ class Tools:
     '''
 
     @staticmethod
-    def format_axis(ax: mpl.axes._axes.Axes) -> None:
-        ax.minorticks_on(); ax.grid(visible=True, which='major', linestyle=':')
-        ax.tick_params(axis='both', which='both', direction='out')
+    def format_axis(ax: mpl.axes._axes.Axes, grid_on: bool = True) -> None:
+        ax.minorticks_on()
+        if grid_on: ax.grid(visible=True, which='major', linestyle=':')
         ax.xaxis.set_ticks_position('both')
         ax.yaxis.set_ticks_position('both')
         ax.patch.set_alpha(0.0)

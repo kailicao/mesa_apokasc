@@ -146,7 +146,9 @@ class SimCtr:
                         my_inlist[i] = f'      mixing_length_alpha = {self.aMLT:.10f}d0\n'
 
                     if isinstance(self.grid, LiGrid):
-                        if 'varcontrol_target = ' in line:
+                        if 'max_age = ' in line:
+                            my_inlist[i] = 'max_age = 1.25d6'
+                        elif 'varcontrol_target = ' in line:
                             my_inlist[i] = '      varcontrol_target = 1d-4\n'
 
             else:
@@ -321,7 +323,7 @@ class LiGrid(SimGrid):
 
     AMLT_LIST = [1.8]
     MASS_LIST = [0.7, 0.8, 0.9, 1. , 1.1, 1.2, 1.3]
-    FEH_LIST = [ 0.1,  0. , -0.1]
+    FEH_LIST = [-0.1,  0. ,  0.1]
 
     def __init__(self, sim_mode: bool = False, aMLT_list: [float] = None,
                  mass_list: [float] = None, FeH_list: [float] = None, **kwargs):
