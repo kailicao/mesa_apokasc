@@ -2,6 +2,7 @@ import os
 import pathlib
 import shutil
 
+from collections.abc import Callable
 from importlib.resources import files
 from .common import Timer
 
@@ -285,8 +286,11 @@ class RgbGrid(SimGrid):
 
     @staticmethod
     def Y_Z_calc(FeH: float, Ybirth: float = 0.2690, Zbirth: float = 0.0187,
-                 Z_over_X_sun: float = 0.02292, YBBN: float = 0.24709):
-        Z_over_X = Z_over_X_sun * 10.0 ** FeH
+                 Z_over_X_sun: 'float | Callable[[float], float]' = 0.02292, YBBN: float = 0.24709):
+        if isinstance(Z_over_X_sun, float):
+            Z_over_X = Z_over_X_sun * 10.0 ** FeH
+        elif isinstance(Z_over_X_sun, Callable):
+            Z_over_X = Z_over_X_sun(FeH) * 10.0 ** FeH
         DY_over_Zbirth = (Ybirth - YBBN) / Zbirth
         Z = (1.0 - YBBN) / (1.0 + 1.0 / Z_over_X + DY_over_Zbirth)
         Y = YBBN + DY_over_Zbirth * Z
