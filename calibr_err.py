@@ -14,8 +14,8 @@ class AmltModel:
 
     '''
 
-    IN_QTY_LIST = ['KIC', 'TEFF', 'S_TEFF', 'LOGG_C_MO', 'S_LOGG_C_MO',
-                   'M_C_MO', 'S_M_C_MO']  # metallicity columns to be specified
+    IN_QTY_LIST = ['KIC', 'Teff', 'S_Teff', 'Logg_Seis', 'S_Logg_Seis',
+                   'Mass', 'S_Mass']  # metallicity columns to be specified
     OUT_QTY_LIST = ['AMLT_FIT', 'DAMLT_DM', 'DAMLT_D[M/H]', 'TEFF_FIT',
                     'DTEFF_DLOGG', 'DTEFF_DM', 'DTEFF_D[M/H]', 'DTEFF_DAMLT',
                     'S_TEFF_LOGG', 'S_TEFF_M', 'S_TEFF_[M/H]', 'S_TEFF_TOT']
@@ -91,7 +91,7 @@ class AmltModel:
 
     def analyze_error(self, calibr, vary: str = 'both', Salaris: bool = False):
         catalog = calibr.apokasc3.copy()
-        METAL = '[FE/H]' if not Salaris else '[M/H]_SAL'
+        METAL = '[Fe/H]'  # if not Salaris else '[M/H]_SAL'
         catalog = catalog[AmltModel.IN_QTY_LIST + [METAL, f'S_{METAL}', 'AMLT_OPT']]
         for QTY in AmltModel.OUT_QTY_LIST: catalog[QTY] = np.nan
 
@@ -101,7 +101,7 @@ class AmltModel:
             catalog['DAMLT_DM'] = 0.0
             catalog['DAMLT_D[M/H]'] = 0.0
         else:
-            model_input = [catalog['M_C_MO']-1, catalog[METAL]]
+            model_input = [catalog['Mass']-1, catalog[METAL]]
             popt, pcov = curve_fit(self.func_aMLT, model_input, catalog['AMLT_OPT'])
             catalog['AMLT_FIT'] = self.func_aMLT(model_input, *popt)
             catalog['DAMLT_DM'] = self.daMLT_dmass(model_input, *popt)
@@ -113,9 +113,9 @@ class AmltModel:
         delta = AmltModel.DELTA; get_Teff_pred = AmltModel.get_Teff_pred
 
         for i, star in catalog.iterrows():
-            mass  = star['M_C_MO']
+            mass  = star['Mass']
             metal = star[METAL]
-            logg  = star['LOGG_C_MO']
+            logg  = star['S_Logg_Seis']
             amlt  = star['AMLT_FIT']
 
             catalog.at[i, 'TEFF_FIT'] =\
@@ -134,13 +134,13 @@ class AmltModel:
                  get_Teff_pred(calibr, mass, metal, logg, amlt-delta)) / (delta*2)
 
         # compute contributions to S_TEFF_TOT and itself
-        catalog['S_TEFF_LOGG']  = catalog['S_LOGG_C_MO'] * catalog['DTEFF_DLOGG']
-        catalog['S_TEFF_M']     = catalog['S_M_C_MO'] * (catalog['DTEFF_DM'] \
+        catalog['S_TEFF_LOGG']  = catalog['S_Logg_Seis'] * catalog['DTEFF_DLOGG']
+        catalog['S_TEFF_M']     = catalog['S_Mass'] * (catalog['DTEFF_DM'] \
                                 + catalog['DTEFF_DAMLT'] * catalog['DAMLT_DM'])
         catalog['S_TEFF_[M/H]'] = catalog[f'S_{METAL}'] * (catalog['DTEFF_D[M/H]'] \
                                 + catalog['DTEFF_DAMLT'] * catalog['DAMLT_D[M/H]'])
         catalog['S_TEFF_TOT']   = np.sqrt(sum([np.square(catalog[s]) for s in \
-                                  ['S_TEFF', 'S_TEFF_LOGG', 'S_TEFF_M', 'S_TEFF_[M/H]']]))
+                                  ['S_Teff', 'S_TEFF_LOGG', 'S_TEFF_M', 'S_TEFF_[M/H]']]))
 
         fname = 'Salaris-' + ('on' if Salaris else 'off') +\
             '_vary-' + vary + '_' + self.model_name + '.csv'

@@ -17,10 +17,9 @@ class RgbCalibr:
 
     '''
 
-    CATALOG_PATH = 'apokasc3/APOKASC3data_catalogDR17_AGB.csv'
-    OBS_QTY_LIST = ['KIC', 'ES_MV', 'TEFF', 'S_TEFF', 'LOGG_C_MO', 'S_LOGG_C_MO', 'M_C_MO', 'S_M_C_MO',
-                    '[FE/H]', 'S_[FE/H]', '[A/FE]', 'S_[A/FE]', '[M/H]_SAL', 'S_[M/H]_SAL',
-                    '[C/FE]', 'S_[C/FE]', '[N/FE]', 'S_[N/FE]', '[C/N]', 'S_[C/N]']
+    CATALOG_PATH = 'apokasc3/Table4_Apoor_RGB_Gold.csv'
+    OBS_QTY_LIST = ['KIC', 'Mass', 'S_Mass', 'Radius', 'S_Radius', 'Logg_Seis', 'S_Logg_Seis', 'Teff', 'S_Teff',
+                    '[Fe/H]', 'S_[Fe/H]', '[Alp/Fe]', 'S_[Alp/Fe]', '[C/Fe]', 'S_[C/Fe]', '[N/Fe]', 'S_[N/Fe]']
 
     def __init__(self, aMLT_list: [float], mass_list: [float] = RgbGrid.MASS_LIST,
                  FeH_list: [float] = RgbGrid.FEH_LIST, vary: str = 'both',
@@ -89,41 +88,28 @@ class RgbCalibr:
                     self.logg_data[k, step][self.existence[k]], kx=2, ky=2)
 
     def load_obs_data(self, Salaris: bool = False):
-        self.apokasc3 = pd.read_csv(files(__package__).joinpath(RgbCalibr.CATALOG_PATH),
-                                    index_col=0)[RgbCalibr.OBS_QTY_LIST]
-        # print(list(self.apokasc3.columns))
-        self.apokasc3 = self.apokasc3[self.apokasc3['ES_MV'] == 1]  # exclude AGB stars
-        self.apokasc3.drop(columns=['ES_MV'])
-
-        # APOKASC3data_catalogDR17_AGB.csv already includes the following cuts
-        # mass_cut      = (self.apokasc3['M_C_MO']    >  0.85) & (self.apokasc3['M_C_MO']    < 1.85)
-        # if not Salaris:
-        #     metal_cut = (self.apokasc3['[FE/H]']    > -0.45) & (self.apokasc3['[FE/H]']    < 0.45)
-        # else:
-        #     metal_cut = (self.apokasc3['[M/H]_SAL'] > -0.45) & (self.apokasc3['[M/H]_SAL'] < 0.45)
-        # self.apokasc3 = self.apokasc3[mass_cut & metal_cut]; del mass_cut, metal_cut
-
-        track_cut = self.apokasc3['TEFF'] + self.apokasc3['LOGG_C_MO'] * 1000.0 > 7500.0
-        self.apokasc3 = self.apokasc3[track_cut]; del track_cut
-        # print(len(self.apokasc3))
+        self.apokasc3 = pd.read_csv(files(__package__).joinpath(RgbCalibr.CATALOG_PATH))  #,
+        #                            index_col='KIC')  # [RgbCalibr.OBS_QTY_LIST]
+        lower_rgb = self.apokasc3['Teff'] + self.apokasc3['Logg_Seis'] * 1000.0 > 7500.0
+        self.apokasc3 = self.apokasc3[lower_rgb]; del lower_rgb
 
     def get_amlt_opt(self, vary: str = 'both', Salaris: bool = False):
         self.apokasc3['AMLT_OPT'] = np.nan
 
         for i, star in self.apokasc3.iterrows():
-            mass  = star['M_C_MO']
-            metal = star['[M/H]_SAL' if Salaris else '[FE/H]']
+            mass  = star['Mass']
+            metal = star['[Fe/H]']
 
             Teff_pred = np.zeros(len(self.aMLT_list))
             for k in range(len(self.aMLT_list)):
                 Teff_arr = [interp(mass, metal)[0, 0] for interp in self.Teff_interps[k][::-1]]
                 logg_arr = [interp(mass, metal)[0, 0] for interp in self.logg_interps[k][::-1]]
                 Teff_pred[k] = interp1d(logg_arr, Teff_arr, kind='slinear',
-                                        fill_value='extrapolate')(star['LOGG_C_MO'])
+                                        fill_value='extrapolate')(star['Logg_Seis'])
                 Teff_arr.clear(); logg_arr.clear(); del Teff_arr, logg_arr
 
             f = UnivariateSpline(self.aMLT_list, Teff_pred, k=1)
-            self.apokasc3.at[i, 'AMLT_OPT'] = fsolve(lambda x: f(x[0]) - star['TEFF'], 2.0)[0]
+            self.apokasc3.at[i, 'AMLT_OPT'] = fsolve(lambda x: f(x[0]) - star['Teff'], 2.0)[0]
 
         fname = 'Salaris-' + ('on' if Salaris else 'off') + '_vary-' + vary + '.csv'
         self.apokasc3.to_csv(self.outdir / fname)

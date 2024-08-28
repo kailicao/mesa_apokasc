@@ -130,7 +130,7 @@ class ReduceModel:
         surface_fe  = h.surface_mg24 / self.grid.stdmix['mg24']
 
         self.raw_data['surface_[Fe/H]' ] = np.log10(surface_fe / surface_h  )
-        self.raw_data['surface_A(Li)'  ] = np.log10(surface_li / surface_hns)
+        self.raw_data['surface_A(Li)'  ] = np.log10(surface_li / surface_hns) + 12.0
         self.raw_data['surface_[C/Fe]' ] = np.log10(surface_c  / surface_fe )
         self.raw_data['surface_[N/Fe]' ] = np.log10(surface_n  / surface_fe )
         self.raw_data['surface_[C/N]'  ] = np.log10(surface_c  / surface_n  )
