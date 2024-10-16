@@ -22,7 +22,7 @@ class AnalGrid:
         self()
 
     def __call__(self) -> None:
-        datacube = np.zeros((10, len(SynthGrid.OUT_MASS_LIST),
+        datacube = np.zeros((11, len(SynthGrid.OUT_MASS_LIST),
                                  len(SynthGrid.OUT_FEH_LIST)))
 
         for j, mass in enumerate(SynthGrid.OUT_MASS_LIST):
@@ -42,7 +42,7 @@ class AnalModel:
 
     QTY_LIST = ['star_age', 'he_core_mass', 'log_g',
                 'surface_[C/Fe]', 'surface_[N/Fe]',
-                'surface_[C/N]', 'surface_12C/13C']
+                'surface_[C/N]', 'surface_12C/13C', 'surface_A(Li)']
 
     def __init__(self, grid: AnalGrid, mass: float,
                  FeH: float, **kwargs) -> None:
@@ -60,7 +60,7 @@ class AnalModel:
         fpath = self.grid.indir / f'{self.model_name}.csv'
         assert fpath.exists(), f' > Error: {self.model_name} does not exist.'
         df = pd.read_csv(fpath, index_col=0)[AnalModel.QTY_LIST]
-        self.data = np.zeros((10,))
+        self.data = np.zeros((11,))
 
         # extract FDU data
         self.data[0] = AnalModel._middle_RGBB(df, 'surface_[C/Fe]')
@@ -81,5 +81,8 @@ class AnalModel:
         self.data[7] = f(3.0); del f
         self.data[8] = df['star_age'][Steps.end]
         self.data[9] = AnalModel._middle_RGBB(df, 'star_age')
+
+        # extract Li depletion data
+        self.data[10] = AnalModel._middle_RGBB(df, 'surface_A(Li)')
 
         del df
