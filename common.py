@@ -9,7 +9,7 @@ rcParams.update({'font.family': 'serif', 'mathtext.fontset': 'dejavuserif',
                  'font.size': 12, 'text.latex.preamble': r"\usepackage{amsmath}",
                  'xtick.major.pad': 2, 'ytick.major.pad': 2, 'xtick.major.size': 6, 'ytick.major.size': 6,
                  'xtick.minor.size': 3, 'ytick.minor.size': 3, 'axes.linewidth': 2, 'axes.labelpad': 1})
-from pypdf import PdfMerger
+from pypdf import PdfWriter
 
 
 class Timer:
@@ -51,10 +51,10 @@ class Tools:
 
     @staticmethod
     def merge_plots(output_dir: pathlib.Path, filename: str, plots: [str]) -> None:
-        pdf_merger = PdfMerger()
+        pdf_merger = PdfWriter()
         for num, plot in enumerate(plots):
             pdf_merger.append(f'{plot}.pdf')
-            pdf_merger.add_outline_item(title=f'{plot}', pagenum=num)
+            pdf_merger.add_outline_item(title=f'{plot}', page_number=num)
 
         with (output_dir / f'{filename}.pdf').open(mode='wb') as file:
             pdf_merger.write(file)

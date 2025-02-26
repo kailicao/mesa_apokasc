@@ -22,7 +22,7 @@ class AnalGrid:
         self()
 
     def __call__(self) -> None:
-        datacube = np.zeros((11, len(SynthGrid.OUT_MASS_LIST),
+        datacube = np.zeros((12, len(SynthGrid.OUT_MASS_LIST),
                                  len(SynthGrid.OUT_FEH_LIST)))
 
         for j, mass in enumerate(SynthGrid.OUT_MASS_LIST):
@@ -60,7 +60,7 @@ class AnalModel:
         fpath = self.grid.indir / f'{self.model_name}.csv'
         assert fpath.exists(), f' > Error: {self.model_name} does not exist.'
         df = pd.read_csv(fpath, index_col=0)[AnalModel.QTY_LIST]
-        self.data = np.zeros((11,))
+        self.data = np.zeros((12,))
 
         # extract FDU data
         self.data[0] = AnalModel._middle_RGBB(df, 'surface_[C/Fe]')
@@ -83,6 +83,8 @@ class AnalModel:
         self.data[9] = AnalModel._middle_RGBB(df, 'star_age')
 
         # extract Li depletion data
-        self.data[10] = AnalModel._middle_RGBB(df, 'surface_A(Li)')
+        self.data[10] = AnalModel._middle_RGBB(df, 'surface_A(Li)') - df['surface_A(Li)'][Steps.TAMS]
+        # self.data[10] = df['surface_A(Li)'][Steps.pre_FDU] - df['surface_A(Li)'][Steps.TAMS]
+        self.data[11] = df['surface_A(Li)'][Steps.TAMS] - df['surface_A(Li)'][Steps.start]
 
         del df
